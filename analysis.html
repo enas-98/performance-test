@@ -1,0 +1,1341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+  <title>Load Test Report</title>
+   <style>
+        #loader {
+            border: 12px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 12px solid #444444;
+            width: 70px;
+            height: 70px;
+            animation: spin 1s linear infinite;
+        }
+          
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+          
+        .center {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+    </style>
+
+  <script src="zingchart.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="StyleSheet" href="report.css" media="screen">
+  <link rel="StyleSheet" href="print.css" media="print">
+
+</head>
+
+<body>
+  <div id="page">
+
+    <table width="100%" class="h1text">
+      <tr>
+        <td>Load Test Report</td>
+        <td align="right" rowspan="2"><img src="logo.png"></td>
+      </tr>
+    </table>
+
+    
+     
+    <h3>Chosse&nbsp;Your&nbsp;Value</h3>
+    <table cellpadding="0" cellspacing="0" border="0" class="datatbl" id="test">
+      <tr>
+        <td>test id: <input type="input" name="x1" id="x1" placeholder="Enter-test-id"></td>
+      </tr>
+    <!-- <tr>
+       <td><input type="input" id="x1" placeholder="Test ID"></td>     
+       <td><input type="input" id="x2" placeholder="RequestExecutionTime" ></td>     
+       <td><input type="input" id="x3" placeholder="RequestDatabaseTime"></td>
+    </tr>
+    <tr>
+       <td><input type="input" id="x4" placeholder="id"></td>     
+       <td><input type="input" id="x5" placeholder="test scenario"></td>     
+       <td><input type="input" id="x6" placeholder="request id"></td>     
+    </tr>
+    <tr>
+        <td><input type="input" id="x7" placeholder="checkExpressionMessage"></td>     
+        <td><input type="datetime" id="x8" placeholder="requestStart"></td>     
+        <td><input type="input" id="x9" placeholder="response_request sent"></td>     
+     </tr>
+     <tr>
+        <td><input type="input" id="x10" placeholder="test step"></td>     
+        <td><input type="input" id="x11" placeholder="responseStatus"></td>     
+        <td><input type="input" id="x12" placeholder="response body"></td>     
+     </tr>
+     <tr>
+        <td><input type="input" id="x13" placeholder="currentThreadCpuTime"></td>     
+        <td><input type="datetime" id="x14" placeholder="requestEnd"></td>     
+        <td><input type="input" id="x15" placeholder="resultOf"></td>     
+     </tr>
+     <tr>
+        <td><input type="input" id="x16" placeholder="Test Script"></td>     
+        <td><input type="input" id="x17" placeholder="messages"></td>     
+     </tr> -->
+   </table>
+   <br />
+   <h3>Chosse&nbsp;Your&nbsp;Time&nbsp;Step</h3>
+   <table cellpadding="0" cellspacing="0" border="0" class="datatbl" id="test">
+    <tr> 
+         <td> Time Step: <input type="input" id="s" placeholder="Enter your time step"> </td>
+         
+         <td> <button id="btn" onclick="Calc()">START</button>  
+        <script src='mainConnection.js'> </script></td>  
+    </tr>
+  
+  
+    </table>
+
+    <div id="container" class="container">
+      <div id='myChart'></div>
+  +    <div id='myNextChart'></div>
+       <div id='myNextChartt'></div>
+           <div id="loader" class="center"></div>
+
+      <script>
+         document.onreadystatechange = function() {
+            if (document.readyState !== "complete") {
+                document.querySelector(
+                  "body").style.visibility = "hidden";
+                document.querySelector(
+                  "#loader").style.visibility = "visible";
+            } else {
+                document.querySelector(
+                  "#loader").style.display = "none";
+                document.querySelector(
+                  "body").style.visibility = "visible";
+            }
+        };
+         
+          var i = 0  ;
+          var Benchmark;
+
+        function Calc() {
+          arrayrequestSart = []
+          arrayrequestEnd = []
+          chank = []
+
+          setTimeout(function () {           
+            Benchmark = JSON.parse(localStorage.getItem("array2"));
+            console.log(Benchmark);
+            for (i in Benchmark)
+            {             
+              arrayrequestSart.push(Benchmark[i].RequestStart)
+              arrayrequestEnd.push(Benchmark[i].RequestEnd)
+            }
+             console.log(arrayrequestSart)
+             console.log(arrayrequestEnd)
+            minTime =Math.min.apply(null ,arrayrequestSart)
+            maxTime =Math.max.apply(null ,arrayrequestSart)
+            maxTimeEndReq =Math.max.apply(null ,arrayrequestEnd)
+            console.log(minTime);
+            console.log(maxTime);
+
+            function getAvg(array) {
+            const total = array.reduce((acc, c) => acc + c, 0);
+            return total / array.length;
+            }   
+
+            function niceBytes(x){
+            n = parseInt(x, 10) || 0;
+            n = n/1024;
+            return(n.toFixed(n < 10 ));
+            }
+
+
+            t = minTime
+            var stepp =  document.getElementById('s').value
+            step =parseInt(stepp)
+            var s = document.getElementById('s').value
+            s1 =parseInt(s)
+            
+            //ChunksrequestDatabaseTime = [];
+            ChunksTotal_Physical_Memory1 = [];
+            ChunksFree_Physical_Memory1 = [];
+            ChunksCommitted_Virtual_Memory_Size1 = [];
+            ChunksTotal_Swap_Space1 = [];
+            ChunksFree_Swap_Space1 = [];
+            ChunksProcess_Cpu_Time = [];
+            ChunksNumber_Of_Active_Thread = [];
+            ChunksGarbage_Collection_Time = [];
+            ChunksTotal_Size_Hard_Disk = [];
+            ChunksREAL_EXECUTE_TIME =[]
+            ChunksCurrentThreadCpuTimeInMS = [];  
+            ChunksRequestExecutionTimeInMS = [];
+            ChunksResponeTime =[]
+            ChunkresponseStatus =[]
+            Chunksthroughput =[]
+            ChunksHitsPRS =[]
+
+            
+
+            while( t < maxTime ){
+             
+              REAL_EXECUTE_TIME =[]
+              filterchunk =[]
+              arrayFree_Physical_Memory = []
+              arrayFree_Physical_Memory1111=[]
+              arrayCommitted_Virtual_Memory_Size = []
+              arrayTotal_Swap_Space = []
+              arrayFree_Swap_Space = []
+              arrayProcess_Cpu_Time = []
+              arrayNumber_Of_Active_Thread = []
+              arrayGarbage_Collection_Time = []
+              arrayTotal_Size_Hard_Disk = []
+              arrayrequestSart1=[]
+              arrayrequestEnd1 =[]
+              arrayCurrentThreadCpuTimeInMS=[]
+              arrayTotal_Physical_Memory=[]
+              arrayRequestExecutionTimeInMS=[]
+              arrayREAL_EXECUTE_TIME=[]
+              arrayresponseStatus=[]
+              let responseTime =[]
+             let result =[]
+             chank=[]
+              filterchunk = []
+              filterchunk2=[]
+              arrayError =[]
+              arrayThroughput =[]
+              arrayHitsPRS =[]
+              ChunksresponseStatus=[]
+              filterchunk = chank.filter(function (obj) { return obj.responseStatus != "200_OK"})
+              console.log(filterchunk)
+              for (i in ChunksresponseStatus)
+              {
+                arrayError.push(filterchunk[i].responseStatus)
+              }
+               var Chunk_responseStatus = arrayError.length
+
+                 
+              console.log(Chunk_responseStatus)
+              ChunksresponseStatus.push(Chunk_responseStatus)
+              chank=Benchmark.filter(function (obj) { return obj.RequestStart <=t+step && obj.RequestStart >= t });
+              console.log(chank)
+              for(i in chank)
+              {
+                arrayTotal_Physical_Memory.push(chank[i].Total_Physical_Memory)
+              // requestDatabaseTime.push(chank[i].Free_Physical_Memory)
+                arrayFree_Physical_Memory.push(chank[i].Free_Physical_Memory)
+                arrayCommitted_Virtual_Memory_Size.push(chank[i].Committed_Virtual_Memory_Size)
+                arrayTotal_Swap_Space.push(chank[i].Total_Swap_Space)
+                arrayFree_Swap_Space.push(chank[i].Free_Swap_Space)
+                arrayProcess_Cpu_Time.push(chank[i].Process_Cpu_Time)
+                arrayNumber_Of_Active_Thread.push(chank[i].Number_Of_Active_Thread)
+                arrayGarbage_Collection_Time.push(chank[i].Garbage_Collection_Time)
+                arrayTotal_Size_Hard_Disk.push(chank[i].Total_Size_Hard_Disk) 
+                arrayREAL_EXECUTE_TIME.push(chank[i].REAL_EXECUTE_TIME)
+                arrayCurrentThreadCpuTimeInMS.push(chank[i].CurrentThreadCpuTimeInMS)
+                arrayrequestSart1.push(chank[i].RequestStart)
+                arrayrequestEnd1.push(chank[i].RequestEnd)
+                arrayRequestExecutionTimeInMS.push(chank[i].RequestExecutionTimeInMS)
+
+              }
+              console.log(arrayTotal_Physical_Memory)
+              console.log(arrayFree_Physical_Memory)
+              console.log(arrayCommitted_Virtual_Memory_Size)
+              console.log(arrayTotal_Swap_Space)
+              console.log(arrayFree_Swap_Space)
+              console.log(arrayProcess_Cpu_Time)
+              console.log(arrayNumber_Of_Active_Thread)
+              console.log(arrayGarbage_Collection_Time)
+              console.log(arrayTotal_Size_Hard_Disk)
+              console.log(arrayREAL_EXECUTE_TIME)
+              console.log(arrayCurrentThreadCpuTimeInMS)
+              console.log(arrayRequestExecutionTimeInMS)
+              console.log(arrayrequestSart1)
+              console.log(arrayrequestEnd1)
+              console.log(ChunksresponseStatus);
+
+
+
+              filterchunk = chank.filter(function (obj) { return obj.responseStatus != "200_OK"})
+              console.log(filterchunk)
+              
+              for (i in filterchunk)
+              {
+                arrayresponseStatus.push(filterchunk[i].responseStatus)
+              }
+               var Chunk_responseStatus = arrayresponseStatus.length
+
+               responseTime = arrayrequestEnd1.map(function(v,i) { return (v - arrayrequestSart1[i]); }); 
+              console.log(responseTime)
+
+               result = arrayREAL_EXECUTE_TIME.map(i=>Number(i));
+              console.log(result)
+                            
+
+              //ChunkAVG_requestDatabaseTime = getAvg(getCol(arrayofconditionValue, 14));
+              ChunkAVG_Total_Physical_Memory = getAvg(arrayTotal_Physical_Memory);
+              var ChunkAVG_Total_Physical_Memory1 = niceBytes(ChunkAVG_Total_Physical_Memory)
+               
+              ChunkAVG_Free_Physical_Memory = getAvg(arrayFree_Physical_Memory);
+              var ChunkAVG_Free_Physical_Memory1 = niceBytes(ChunkAVG_Free_Physical_Memory)
+
+              ChunkAVG_Committed_Virtual_Memory_Size = getAvg(arrayCommitted_Virtual_Memory_Size);
+              var ChunkAVG_Committed_Virtual_Memory_Size1 = niceBytes(ChunkAVG_Committed_Virtual_Memory_Size)
+
+              ChunkAVG_Total_Swap_Space = getAvg(arrayTotal_Swap_Space);
+              var ChunkAVG_Total_Swap_Space1 = niceBytes(ChunkAVG_Total_Swap_Space)
+
+              ChunkAVG_Free_Swap_Space = getAvg(arrayFree_Swap_Space);
+              var ChunkAVG_Free_Swap_Space1 = niceBytes(ChunkAVG_Free_Swap_Space)
+
+              ChunkAVG_Process_Cpu_Time = getAvg(arrayProcess_Cpu_Time);
+              ChunkAVG_Number_Of_Active_Thread = getAvg(arrayNumber_Of_Active_Thread);
+              ChunkAVG_Garbage_Collection_Time = getAvg(arrayGarbage_Collection_Time);
+              ChunkAVG_Total_Size_Hard_Disk = getAvg(arrayTotal_Size_Hard_Disk);
+              ChunkAvgREAL_EXECUTE_TIME = getAvg(result)
+              ChunkAVG_CurrentThreadCpuTimeInMS = getAvg(arrayCurrentThreadCpuTimeInMS);  
+              ChunkAVG_RequestExecutionTimeInMS = getAvg(arrayRequestExecutionTimeInMS);
+              ChunkAVG_ResponeTime = getAvg(responseTime);
+              //ChunkAVG_ResponeTime=getAvg(responseStatus);
+
+              console.log(ChunkAVG_CurrentThreadCpuTimeInMS);
+              console.log(ChunkAvgREAL_EXECUTE_TIME);
+              console.log(ChunkAVG_Total_Physical_Memory1);
+              console.log(ChunkAVG_Free_Physical_Memory1);
+              console.log(ChunkAVG_Committed_Virtual_Memory_Size1);
+              console.log(ChunkAVG_Total_Swap_Space1);
+              console.log(ChunkAVG_Free_Swap_Space1);
+              console.log(ChunkAVG_Process_Cpu_Time);
+              console.log(ChunkAVG_Garbage_Collection_Time);
+              console.log(ChunkAVG_Total_Size_Hard_Disk);
+              console.log(ChunkAVG_RequestExecutionTimeInMS);
+              console.log(ChunkAVG_ResponeTime)
+
+
+              ChunksCurrentThreadCpuTimeInMS.push(ChunkAVG_CurrentThreadCpuTimeInMS)
+              ChunksREAL_EXECUTE_TIME.push(ChunkAvgREAL_EXECUTE_TIME)
+              ChunksTotal_Physical_Memory1.push(ChunkAVG_Total_Physical_Memory1)
+               ChunksTotal_Physical_Memory = ChunksTotal_Physical_Memory1.map(i=>Number(i));
+              
+              ChunksFree_Physical_Memory1.push(ChunkAVG_Free_Physical_Memory1)
+              ChunksFree_Physical_Memory = ChunksFree_Physical_Memory1.map(i=>Number(i));
+
+              ChunksCommitted_Virtual_Memory_Size1.push(ChunkAVG_Committed_Virtual_Memory_Size1)
+              ChunksCommitted_Virtual_Memory_Size = ChunksCommitted_Virtual_Memory_Size1.map(i=>Number(i));
+
+              ChunksTotal_Swap_Space1.push(ChunkAVG_Total_Swap_Space1)
+              ChunksTotal_Swap_Space = ChunksTotal_Swap_Space1.map(i=>Number(i));
+
+              ChunksFree_Swap_Space1.push(ChunkAVG_Free_Swap_Space1)
+              ChunksFree_Swap_Space = ChunksFree_Swap_Space1.map(i=>Number(i));
+
+              ChunksProcess_Cpu_Time.push(ChunkAVG_Process_Cpu_Time)
+              ChunksGarbage_Collection_Time.push(ChunkAVG_Garbage_Collection_Time)
+              ChunksTotal_Size_Hard_Disk.push(ChunkAVG_Total_Size_Hard_Disk)
+              ChunksRequestExecutionTimeInMS.push(ChunkAVG_RequestExecutionTimeInMS)
+              ChunksNumber_Of_Active_Thread.push(ChunkAVG_Number_Of_Active_Thread)
+              ChunksResponeTime.push(ChunkAVG_ResponeTime)
+             // ChunkresponseStatus.push(ChunkAVG_responseStatus)
+
+              t=t+step
+              }
+
+              console.log(ChunksCurrentThreadCpuTimeInMS)
+              console.log(ChunksREAL_EXECUTE_TIME)
+              console.log(ChunksTotal_Physical_Memory);
+              console.log(ChunksFree_Physical_Memory);
+              console.log(ChunksCommitted_Virtual_Memory_Size);
+              console.log(ChunksTotal_Swap_Space);
+              console.log(ChunksFree_Swap_Space);
+              console.log(ChunksProcess_Cpu_Time);
+              console.log(ChunksGarbage_Collection_Time);
+              console.log(ChunksTotal_Size_Hard_Disk);
+              console.log(ChunksRequestExecutionTimeInMS);
+              console.log(ChunksResponeTime)
+              console.log(ChunkresponseStatus)
+
+
+            DrawChart();
+
+           // localStorage.clear()
+
+          }, 5000);
+        }
+
+        function DrawChart() {
+          ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "b55b025e438fa8a98e32482b5f768ff5"];
+          var myConfig = {
+         type: 'line',
+      backgroundColor: 'white',
+      title: {
+        text: 'All values ',
+        adjustLayout: true,
+        marginTop: '7px',
+        fontColor: 'red'
+      },
+     legend: {
+          cursor: 'hand',
+          draggable: true,
+          dragHandler: 'icon',
+          toggleAction: 'remove',
+          minimize: true,
+          header: {
+          height: '1px',
+          width:'100px',
+          text: 'turn-on-off'
+          }
+          },
+      plot: {
+        aspect: 'spline',
+        lineWidth: '2px',
+        marker: {
+          borderWidth: '0px',
+          size: '5px'
+        }
+      },
+      plotarea: {
+        margin: 'dynamic 70'
+      },
+      scaleX: {
+        item: {
+          fontColor: 'gray'
+        },
+        lineColor: 'gray',
+        zooming: true,
+           minValue:minTime,
+            maxValue:maxTime,
+          step:s1,
+
+          transform: {
+          type: 'date',
+          }
+          },
+      scaleY: {
+        guide: {
+          lineStyle: 'dashed'
+        },
+        item: {
+          fontColor: 'Black'
+        },
+        lineColor: 'Black',
+        minorGuide: {
+          alpha: 0.7,
+          lineColor: 'Black',
+          lineStyle: 'dashed',
+          lineWidth: '1px',
+          visible: true
+        },
+        minorTick: {
+          lineColor: 'Black'
+        },
+        minorTicks: 1,
+        tick: {
+          lineColor: 'Black'
+        }
+      },
+      crosshairX: {
+        marker: {
+          alpha: 0.5,
+          size: '7px'
+        },
+        plotLabel: {
+          borderRadius: '3px',
+          multiple: true
+        },
+        scaleLabel: {
+          backgroundColor: 'Black',
+          borderRadius: '3px'
+        }
+      },
+      crosshairY: {
+        type: 'multiple',
+        lineColor: 'Black',
+        scaleLabel: {
+          bold: true,
+          borderRadius: '3px',
+          decimals: 2,
+          fontColor: '#2C2C39',
+          offsetX: '-5px'
+        }
+      },
+      shapes: [{
+        type: 'rectangle',
+        id: 'view_all',
+        backgroundColor: '#53535e',
+        borderColor: '#E3E3E5',
+        borderRadius: '3px',
+        borderWidth: '1px',
+        cursor: 'hand',
+        label: {
+          text: 'View All',
+          bold: true,
+          fontColor: '#E3E3E5',
+          fontSize: '12px'
+        },
+        width: '75px',
+        height: '20px',
+        x: '85%',
+        y: '11%'
+      }],
+      tooltip: {
+        borderRadius: '3px',
+        borderWidth: '0px'
+      },
+      preview: {
+        adjustLayout: true,
+        borderColor: '#E3E3E5',
+        label: {
+          fontColor: '#E3E3E5'
+        },
+        mask: {
+          backgroundColor: '#E3E3E5'
+        }
+      },
+    series: [{
+          values: ChunksCurrentThreadCpuTimeInMS,// avg cpu
+          text: 'cputime',
+          backgroundColor: 'DeepSkyBlue',
+          linecolor: "DeepSkyBlue",
+          legenditem: {
+          backgroundcolor: "",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },
+          {
+          values: ChunksProcess_Cpu_Time,// avg cpu
+          text: 'Process_Cpu_Time',
+          backgroundColor: 'PaleVioletRed ',
+          linecolor: "PaleVioletRed ",
+          legenditem: {
+          backgroundcolor: "",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "PaleVioletRed ",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "PaleVioletRed "
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "PaleVioletRed ",
+          }
+          },
+          {
+          values: ChunksRequestExecutionTimeInMS,// avg cpu
+          text: 'requestExecutionTimeInMS',
+          backgroundColor:'OliveDrab'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: ""
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },
+
+
+
+
+          {
+          values: ChunksResponeTime,// avg cpu
+          text: 'Request_Response_Time',
+          backgroundColor:'FireBrick'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+
+          },
+          {
+          values: ChunksTotal_Physical_Memory,// avg cpu
+          text: 'Total_Physical_Memory',
+          backgroundColor:'DarkOrange'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },
+          {
+          values: ChunksFree_Physical_Memory,// avg cpu
+          text: 'Free_Physical_Memory',
+          backgroundColor:'MediumSeaGreen'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },
+          {
+          values: ChunksCommitted_Virtual_Memory_Size,// avg cpu
+          text: 'Committed_Virtual_Memory_Size',
+          backgroundColor:'DarkOrange'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },
+          {
+          values: ChunksTotal_Swap_Space,// avg cpu
+          text: 'Total_Swap_Space',
+          backgroundColor:'DarkGoldenrod'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },
+          {
+          values: ChunksFree_Swap_Space,// avg cpu
+          text: 'Free_Swap_Space',
+          backgroundColor:'SteelBlue'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },
+          {
+          values: ChunksNumber_Of_Active_Thread,// avg cpu
+          text: 'Number_Of_Active_Thread',
+          backgroundColor:'Silver'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },
+          {
+          values: ChunksGarbage_Collection_Time,// avg cpu
+          text: 'Garbage_Collection_Time',
+          backgroundColor:'YellowGreen'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },{
+          values: ChunksTotal_Size_Hard_Disk,// avg cpu
+          text: 'Total_Size_Hard_Disk',
+          backgroundColor:'LightSkyBlue'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },{
+          values: ChunksREAL_EXECUTE_TIME,// avg cpu
+          text: 'REAL_EXECUTE_TIME',
+          backgroundColor:'Yellow'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "red",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },
+
+          ],
+
+
+          }; 
+          var clicks = 0;
+
+          zingchart.node_click =function(e) {
+          var shapeId = e.id;
+          console.log(shapeId);
+           if ( e.id === 'myChart') {
+          nodeindex=e.scaleval;
+          console.log(nodeindex);
+          var array2 ;
+          var time ;
+          console.log(nodeindex);
+          t = nodeindex
+          step1=s1
+
+          function niceBytes(x){
+            n = parseInt(x, 10) || 0;
+            n = n/1024;
+            return(n.toFixed(n < 10 ));
+            }
+            
+              arrayoftdl1=[]  
+              REAL_EXECUTE_TIME1 =[]
+              Total_Physical_Memory = []
+              Free_Physical_Memory = []
+              Committed_Virtual_Memory_Size = []
+              Total_Swap_Space = []
+              Free_Swap_Space = []
+              Total_Physical_Memory1 = []
+              Free_Physical_Memory1 = []
+              Committed_Virtual_Memory_Size1 = []
+              Total_Swap_Space1 = []
+              Free_Swap_Space1 = []
+              Total_Physical_Memory11 = []
+              Free_Physical_Memory11 = []
+              Committed_Virtual_Memory_Size11 = []
+              Total_Swap_Space11 = []
+              Free_Swap_Space11 = []
+              Process_Cpu_Time1 = []
+              Number_Of_Active_Thread1 =[]
+              Garbage_Collection_Time1 = []
+              Total_Size_Hard_Disk1 = []
+              CurrentThreadCpuTimeInMS1 = []
+              RequestExecutionTimeInMS1 =[]
+
+              arrayoftdl= []    
+              start =[]
+              end=[]    
+              responseTime =[]
+              REAL_EXECUTE_TIME11 =[]
+
+              chunk1 =Benchmark.filter(function (obj) { return obj.RequestStart <=t+step1 && obj.RequestStart>= t });
+              console.log(chunk1)
+              for (i in chunk1)
+              {
+                Total_Physical_Memory.push(chunk1[i].Total_Physical_Memory)
+                Free_Physical_Memory.push(chunk1[i].Free_Physical_Memory)
+                Committed_Virtual_Memory_Size.push(chunk1[i].Committed_Virtual_Memory_Size)
+                Total_Swap_Space.push(chunk1[i].Total_Swap_Space)
+                Free_Swap_Space.push(chunk1[i].Free_Swap_Space)
+                Process_Cpu_Time1.push(chunk1[i].Process_Cpu_Time)
+                Number_Of_Active_Thread1.push(chunk1[i].Number_Of_Active_Thread)
+                Garbage_Collection_Time1.push(chunk1[i].Garbage_Collection_Time)
+                Total_Size_Hard_Disk1.push(chunk1[i].Total_Size_Hard_Disk) 
+                REAL_EXECUTE_TIME1.push(chunk1[i].REAL_EXECUTE_TIME)
+                CurrentThreadCpuTimeInMS1.push(chunk1[i].CurrentThreadCpuTimeInMS)
+                RequestExecutionTimeInMS1.push(chunk1[i].RequestExecutionTimeInMS)
+                arrayoftdl.push(chunk1[i].tdlId)
+                start.push(chunk1[i].RequestStart)
+                end.push(chunk1[i].RequestEnd)
+              }
+              
+               responseTime = end.map(function(v,i) { return (v - start[i]); }); 
+              console.log(responseTime)
+
+               REAL_EXECUTE_TIME11 = REAL_EXECUTE_TIME1.map(i=>Number(i));
+
+              for (i in arrayoftdl) {
+                if (arrayoftdl[i] != null){
+               let tdlid= arrayoftdl[i].split('$$')
+                var j = tdlid.length
+                arrayoftdl1.push(tdlid[j -1]);
+              }}
+
+              for ( i in Total_Physical_Memory)
+              {
+                Total_Physical_Memory11.push(niceBytes(Total_Physical_Memory[i]))
+              }
+               Total_Physical_Memory1 = Total_Physical_Memory11.map(i=>Number(i));
+              
+               for( i in Free_Physical_Memory)
+               {
+               Free_Physical_Memory11.push(niceBytes(Free_Physical_Memory))
+              }
+               Free_Physical_Memory1 = Free_Physical_Memory11.map(i=>Number(i));
+              
+               for(i in Committed_Virtual_Memory_Size)
+               {
+               Committed_Virtual_Memory_Size11.push(niceBytes(Committed_Virtual_Memory_Size)) 
+               }
+               Committed_Virtual_Memory_Size1 = Committed_Virtual_Memory_Size11.map(i=>Number(i));
+              
+               for (i in Total_Swap_Space)
+               {
+                Total_Swap_Space11.push(niceBytes(Total_Swap_Space)) 
+               }
+               Total_Swap_Space1 = Total_Swap_Space11.map(i=>Number(i));
+
+               for (i in Free_Swap_Space)
+               {
+                Free_Swap_Space11.push(niceBytes(Free_Swap_Space))
+               }
+               Free_Swap_Space1 = Free_Swap_Space11.map(i=>Number(i));
+              
+
+
+
+              console.log(arrayoftdl1)
+              console.log(Total_Physical_Memory1);
+              console.log(Free_Physical_Memory1);
+              console.log(Committed_Virtual_Memory_Size1);
+              console.log(Total_Swap_Space1);
+              console.log(Free_Swap_Space1);
+              console.log(Process_Cpu_Time1);
+              console.log(Number_Of_Active_Thread1);
+              console.log(Garbage_Collection_Time1);
+              console.log(Total_Size_Hard_Disk1);
+              console.log(REAL_EXECUTE_TIME11);
+              console.log(CurrentThreadCpuTimeInMS1);
+
+              var myDrilldownConfig=[]
+              myDrilldownConfig[11] = {
+            
+            type: 'bar',
+          globals: {
+          fontSize: '14px'
+          },
+          title: {
+          text: 'report ',
+          paddingLeft: '50px',
+          fontSize: '24px',
+          textAlign: 'left',
+          // will force margin and padding on title
+          // adjustLayout: true
+          },
+          legend: {
+          cursor: 'hand',
+          draggable: true,
+          dragHandler: 'icon',
+          toggleAction: 'remove',
+          minimize: true,
+          header: {
+          height: '1px',
+          text: 'turn-on-off'
+          }
+          },
+          plotarea: {
+          margin: '50px dynamic dynamic dynamic'
+          },
+          // plot represents general series, or plots, styling
+          plot: {
+          stacked: true,
+          // hoverstate
+          tooltip: {
+          visible: false
+          },
+          // animation docs here:
+          // https://www.zingchart.com/docs/tutorials/design-and-styling/chart-animation/#animation__effect
+          animation: {
+          effect: 'ANIMATION_SLIDE_TOP',
+          method: 'ANIMATION_BOUNCE_EASE_OUT',
+          sequence: 'ANIMATION_NO_SEQUENCE',
+          speed: 975
+          },
+          lineWidth: '3px',
+          // line node styling
+          marker: {
+          borderWidth: '0px',
+          size: '6px'
+          }
+          },
+          scaleX: {
+          values: arrayoftdl,          label: {
+          text: 'tdid'
+          },
+         
+          },
+          scaleY: {
+          label: {
+          text: 'data visulization '
+          },
+          },
+          crosshairX: {
+          plotLabel: {
+          padding: '10px 15px',
+          borderRadius: '3px',
+          sortByValue: 'asc'
+          },
+          lineWidth: '100%',
+          alpha: .28,
+          },
+          series: [{
+          text: 'currentThreadCpuTimeInMS',
+          // plot values
+          values: CurrentThreadCpuTimeInMS1,
+          backgroundColor: 'DeepSkyBlue',
+          },
+          {
+          text: 'responseTime',
+          // plot values
+          values: responseTime,
+          backgroundColor: 'OliveDrab',
+          },
+          {
+          text: 'request execution time ',
+          // plot values
+          values: RequestExecutionTimeInMS1,
+          backgroundColor: 'FireBrick',
+          },
+          {
+          text: 'Total_Physical_Memory',
+          // plot values
+          values: Total_Physical_Memory1,
+          backgroundColor: 'DarkOrange',
+          },
+          {
+          text: 'Free_Physical_Memory',
+          // plot values
+          values: Free_Physical_Memory1,
+          backgroundColor: 'MediumSeaGreen',
+          },
+          {
+          text: 'Committed_Virtual_Memory_Size',
+          // plot values
+          values: Committed_Virtual_Memory_Size1,
+          backgroundColor: 'DarkGoldenrod',
+          },
+          {
+          text: 'Process_Cpu_Time',
+          // plot values
+          values: Process_Cpu_Time1,
+          backgroundColor: 'SpringGreen',
+          },
+          {
+          text: 'Total_Swap_Space',
+          // plot values
+          values: Total_Swap_Space1,
+          backgroundColor: 'SteelBlue',
+          },
+          {
+          text: 'Free_Swap_Space',
+          // plot values
+          values: Free_Swap_Space1,
+          backgroundColor: 'Silver',
+          },
+          {
+          text: 'Number_Of_Active_Thread',
+          // plot values
+          values: Number_Of_Active_Thread1,
+          backgroundColor: 'YellowGreen',
+          },
+          {
+          text: 'Garbage_Collection_Time',
+          // plot values
+          values: Garbage_Collection_Time1,
+          backgroundColor: 'LightSkyBlue',
+          },
+          {
+          text: 'REAL_EXECUTE_TIME',
+          // plot values
+          values: REAL_EXECUTE_TIME11,
+          backgroundColor: 'Yellow',
+          },
+
+          ],
+          
+          };
+          zingchart.render({
+          id: 'myNextChart',
+          data: myDrilldownConfig[11], //to reference the drilldown charts
+                   // data: myDrilldownConfig[e.plotindex], //to reference the drilldown charts
+
+          height: 400,
+          width: '100%'
+
+          });
+              }
+else if (e.id === 'myNextChart') {
+         
+                                nodeindex1=e.scaleval;
+                                console.log(nodeindex)
+                                console.log(nodeindex1);
+                                var array2 ;
+               var time ;
+          console.log(nodeindex);
+                    t = nodeindex 
+                    t1=nodeindex1                                                                  
+                    step2=s1
+                    arrayoftdl1=[]  
+              REAL_EXECUTE_TIME1 =[]
+              Total_Physical_Memory1 = []
+              Free_Physical_Memory1 = []
+              Committed_Virtual_Memory_Size1 = []
+              Total_Swap_Space1 = []
+              Free_Swap_Space1 = []
+              Process_Cpu_Time1 = []
+              Number_Of_Active_Thread1 =[]
+              Garbage_Collection_Time1 = []
+              Total_Size_Hard_Disk1 = []
+              CurrentThreadCpuTimeInMS1 = []
+              RequestExecutionTimeInMS1 =[]
+              arrayoftdl= []      
+              requeststart =[]
+              reqestEnd =[]  
+
+              chunk1 =Benchmark.filter(function (obj) { return obj.RequestStart <=t+step2 && obj.RequestStart>= t && obj.tdlId==t1});
+              console.log(chunk1)
+              for (i in chunk1)
+              {
+                Total_Physical_Memory1.push(chunk1[i].Total_Physical_Memory)
+                Free_Physical_Memory1.push(chunk1[i].Free_Physical_Memory)
+                Committed_Virtual_Memory_Size1.push(chunk1[i].Committed_Virtual_Memory_Size)
+                Total_Swap_Space1.push(chunk1[i].Total_Swap_Space)
+                Free_Swap_Space1.push(chunk1[i].Free_Swap_Space)
+                Process_Cpu_Time1.push(chunk1[i].Process_Cpu_Time)
+                Number_Of_Active_Thread1.push(chunk1[i].Number_Of_Active_Thread)
+                Garbage_Collection_Time1.push(chunk1[i].Garbage_Collection_Time)
+                Total_Size_Hard_Disk1.push(chunk1[i].Total_Size_Hard_Disk) 
+                REAL_EXECUTE_TIME1.push(chunk1[i].REAL_EXECUTE_TIME)
+                CurrentThreadCpuTimeInMS1.push(chunk1[i].CurrentThreadCpuTimeInMS)
+                RequestExecutionTimeInMS1.push(chunk1[i].RequestExecutionTimeInMS)
+                arrayoftdl.push(chunk1[i].tdlId)
+                requeststart.push(chunk1[i].RequestStart)
+                reqestEnd.push(chunk1[i].RequestEnd)
+              }
+              
+
+              let REAL_EXECUTE_TIME11 = REAL_EXECUTE_TIME1.map(i=>Number(i));
+
+              for (i in arrayoftdl) {
+                if (arrayoftdl[i] != null){
+               let tdlid= arrayoftdl[i].split('$$')
+                var j = tdlid.length
+                arrayoftdl1.push(tdlid[j -1]);
+              }}
+
+              console.log(arrayoftdl1)
+              console.log(Total_Physical_Memory1);
+              console.log(Free_Physical_Memory1);
+              console.log(Committed_Virtual_Memory_Size1);
+              console.log(Total_Swap_Space1);
+              console.log(Free_Swap_Space1);
+              console.log(Process_Cpu_Time1);
+              console.log(Number_Of_Active_Thread1);
+            console.log(Garbage_Collection_Time1);
+              console.log(Total_Size_Hard_Disk1);
+              console.log(REAL_EXECUTE_TIME11);
+              console.log(CurrentThreadCpuTimeInMS1);
+              minTime1 =Math.min.apply(null ,requeststart)
+            maxTime1 =Math.max.apply(null ,reqestEnd)
+            console.log(minTime);
+            console.log(maxTime);
+
+            var myDrilldownConfig1 = [];
+          //the Next Drilldown Charts
+                 myDrilldownConfig1[0] = {
+              
+            var myDrilldownConfig1 = [];
+          //the Next Drilldown Charts
+           myDrilldownConfig1[0] = {
+               type: 'bar',
+          globals: {
+          fontSize: '14px'
+          },
+          title: {
+          text: 'report ',
+          paddingLeft: '50px',
+          fontSize: '24px',
+          textAlign: 'left',
+          // will force margin and padding on title
+          // adjustLayout: true
+          },
+          legend: {
+          cursor: 'hand',
+          draggable: true,
+          dragHandler: 'icon',
+          toggleAction: 'remove',
+          minimize: true,
+          header: {
+          height: '1px',
+          text: 'turn-on-off'
+          }
+          },
+          plotarea: {
+          margin: '50px dynamic dynamic dynamic'
+          },
+          // plot represents general series, or plots, styling
+          plot: {
+          stacked: true,
+          // hoverstate
+          tooltip: {
+          visible: false
+          },
+          // animation docs here:
+          // https://www.zingchart.com/docs/tutorials/design-and-styling/chart-animation/#animation__effect
+          animation: {
+          effect: 'ANIMATION_SLIDE_TOP',
+          method: 'ANIMATION_BOUNCE_EASE_OUT',
+          sequence: 'ANIMATION_NO_SEQUENCE',
+          speed: 975
+          },
+          lineWidth: '3px',
+          // line node styling
+          marker: {
+          borderWidth: '0px',
+          size: '6px'
+          }
+          },
+          scaleX: {
+          values: arrayoftdl1,          label: {
+          text: 'tdid'
+          },
+         
+          },
+          scaleY: {
+             zooming: true,
+           minValue:minTime1,
+            maxValue:maxTime1,
+            step:s1,
+
+          transform: {
+          type: 'date',
+          },
+          label: {
+          text: 'data visulization '
+          },
+          },
+          crosshairX: {
+          plotLabel: {
+          padding: '10px 15px',
+          borderRadius: '3px',
+          sortByValue: 'asc'
+          },
+          lineWidth: '100%',
+          alpha: .28,
+          },
+          series: [{
+        
+          text: 'RequestStart',
+          // plot values
+          values: requeststart,
+          backgroundColor: 'DeepSkyBlue',
+          },
+          {
+          text: 'RequestEnd',
+          // plot values
+          values: reqestEnd,
+          backgroundColor: 'SteelBlue',
+          },
+         
+
+          ]};   
+          }; 
+          };    
+
+                        zingchart.render({
+          id: 'myNextChartt',
+          data: myDrilldownConfig1[0], //to reference the drilldown charts
+          height: 400,
+          width: '100%'
+          });
+            
+              
+
+           
+
+       
+          
+
+
+
+          zingchart.shape_click = function(e) {
+          var shapeId = e.shapeid;
+          console.log(e);
+
+          switch (shapeId) {
+          case 'forwards':
+          case 'backwards':
+          case 'default':
+          zingchart.exec('myNextChart', 'destroy');
+          zingchart.render({
+          id: 'myChart',
+          data: myConfig,
+          height: 400,
+          width: '100%'
+          });
+          break;
+          }
+          }
+
+
+          zingchart.render({
+          id: 'myChart',
+          data: myConfig,
+          height: 400,
+          width: '100%'
+          });}
+
+
+      </script>
+    </div>
+    <br/>
+  </div>
+  <p class="subnote">Report generated by Web Performance Load Tester</p>
+</body>
+</html>

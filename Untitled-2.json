@@ -1,0 +1,33 @@
+"body" : "
+    {
+        \"output\":,
+        \"isSessionInvalidated\":false,
+        \"data\":,
+        \"agency\":\"الإدارة العامة\",
+        \"timeZoneOffset\":10800000,
+        \"Benchmark\":
+            {
+                \"Total_Physical_Memory\":6187144,
+                \"Free_Physical_Memory\":494412,
+                \"Committed_Virtual_Memory_Size\":2519988,
+                \"Total_Swap_Space\":14112904,
+                \"Free_Swap_Space\":2957068,
+                \"Operating_System\":\"Windows 10\",
+                \"Architecture\":\"amd64\",
+                \"Processors\":4,
+                \"Process_Cpu_Time\":451390625000,
+                \"Number_Of_Active_Thread\":156,
+                \"Garbage_Collection_Time\":4790,
+                \"Total_Size_Hard_Disk\":1667.88,
+                \"Users_Count\":1,
+                \"REAL_EXECUTE_TIME\":\"70\",
+                \"CurrentThreadCpuTimeInMS\":187,
+                \"RequestStart\":1624183063074,
+                \"RequestEnd\":1624183065713,
+                \"RequestExecutionTimeInMS\":2639
+            },
+        \"fullName\":\"hrm hrm\",
+        \"position\":\"مدير الموارد البشرية\",
+        \"userName\":\"hrm\",
+        \"isRTL\":true
+    }"

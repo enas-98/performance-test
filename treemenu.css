@@ -1,0 +1,79 @@
+
+html body {
+  background-color:#ffffff;
+  font-family:trebuchet ms, verdana, tahoma, arial;
+  font-weight     : bold;
+}
+
+h1     {                  /* Ueberschrift 1 ---- */
+  text-align       : justify;
+  padding          : 0px   0px   0px   0px;
+  background:#f6f6f6;
+  border-bottom:1px solid #ddd;
+  border-top:1px solid #ddd;
+  font-size:1.1em;
+  padding-left:5px;
+  color            : #666;
+  margin           : 0.4cm 0.1cm 0.0cm 0.1cm; }
+
+*.noborder {                                           /* NoBorder ---------- */
+  border-style     : none;
+  border-width     : 4px 4px 4px 4px ;
+  vertical-align   : middle; }
+
+*.bordered {
+  border-style     : double;
+  border-width     : 4px 4px 4px 4px;
+  vertical-align   : middle; }
+
+.TreeMenu {                                                      /* General   */
+  font-family     : trebuchet ms, verdana, tahoma, arial;
+  font-size       : 0.8em;          
+  white-space     : nowrap;          }
+
+.TreeMenu a {                                                    /* Links     */
+  text-decoration : none; }
+
+.TreeMenu img {                                                  /* Images    */
+  border          : 0px;             
+  vertical-align  : middle; }
+
+*.CreatedBy:hover {                                              /* CreatedBy */
+  color           : #0000FF;         
+  text-decoration : underline; }
+
+*.Node_0, *.Selected_0, *.Item_0 {                               /* Indent=0  */
+  color            : #666;	
+  padding-left    : 2px; }
+
+*.Node_0:hover, *.Selected_0:hover {
+  color           : #0000FF;         
+  text-decoration : underline; }
+
+*.Item_0:hover { }
+
+*.Node_1, *.Selected_1, *.Item_1 {                               /* Indent=1  */
+  color            : #666;	
+  padding-left    : 2px;  }
+
+*.Node_1:hover, *.Selected_1:hover {
+  color           : #0000FF;         
+  text-decoration : underline; }
+
+*.Item_1:hover { }
+
+*.Node_2, *.Selected_2, *.Item_2 {                               /* Indent>1  */
+  color            : #666;	
+  padding-left    : 2px; }
+
+*.Node_2:hover, *.Selected_2:hover {
+  color           : #0000FF;         
+  text-decoration : underline; }
+
+*.Item_2:hover { }
+
+*.Selected_0, *.Selected_1, *.Selected_2 {                       /* Selected_ */
+    color           : #111;         
+    background-color: #e0e0e0; }
+  
+  

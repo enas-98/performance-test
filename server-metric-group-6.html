@@ -1,0 +1,589 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+  <title>Load Test Report</title>
+
+  <script src="zingchart.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="StyleSheet" href="report.css" media="screen">
+  <link rel="StyleSheet" href="print.css" media="print">
+
+</head>
+
+<style>
+  .zc-body {
+    background: white;
+  }
+
+  .chart--container {
+    height: 100%;
+    width: 100%;
+    min-height: 530px;
+  }
+
+  .zc-ref {
+    display: none;
+  }
+</style>
+
+<body class="zc-body">
+  <div id="page">
+
+    <table width="100%" class="h1text">
+      <tr>
+        <td>Load Test Report</td>
+        <td align="right" rowspan="2"><img src="logo.png"></td>
+      </tr>
+    </table>
+
+    
+     
+    <h3>Chosse&nbsp;Your&nbsp;Value</h3>
+    <table cellpadding="0" cellspacing="0" border="0" class="datatbl" id="test">
+      <tr>
+        <td>test id: <input type="input" name="x1" id="x1" placeholder="Enter-test-id"></td>
+      </tr>
+    <!-- <tr>
+       <td><input type="input" id="x1" placeholder="Test ID"></td>     
+       <td><input type="input" id="x2" placeholder="RequestExecutionTime" ></td>     
+       <td><input type="input" id="x3" placeholder="RequestDatabaseTime"></td>
+    </tr>
+    <tr>
+       <td><input type="input" id="x4" placeholder="id"></td>     
+       <td><input type="input" id="x5" placeholder="test scenario"></td>     
+       <td><input type="input" id="x6" placeholder="request id"></td>     
+    </tr>
+    <tr>
+        <td><input type="input" id="x7" placeholder="checkExpressionMessage"></td>     
+        <td><input type="datetime" id="x8" placeholder="requestStart"></td>     
+        <td><input type="input" id="x9" placeholder="response_request sent"></td>     
+     </tr>
+     <tr>
+        <td><input type="input" id="x10" placeholder="test step"></td>     
+        <td><input type="input" id="x11" placeholder="responseStatus"></td>     
+        <td><input type="input" id="x12" placeholder="response body"></td>     
+     </tr>
+     <tr>
+        <td><input type="input" id="x13" placeholder="currentThreadCpuTime"></td>     
+        <td><input type="datetime" id="x14" placeholder="requestEnd"></td>     
+        <td><input type="input" id="x15" placeholder="resultOf"></td>     
+     </tr>
+     <tr>
+        <td><input type="input" id="x16" placeholder="Test Script"></td>     
+        <td><input type="input" id="x17" placeholder="messages"></td>     
+     </tr> -->
+   </table>
+   <br />
+   <h3>Chosse&nbsp;Your&nbsp;Time&nbsp;Step</h3>
+   <table cellpadding="0" cellspacing="0" border="0" class="datatbl" id="test">
+    <tr> 
+         <td> Time Step: <input type="input" id="s" placeholder="Enter your time step"> </td>
+         
+         <td> <button id="btn" onclick="Calc()">START</button>  
+        <script src='mainConnection.js'> </script></td>  
+    </tr>
+  
+  
+    </table>
+    
+    <div id="container" class="container">
+      <div id='myChart'></div>
+      <div id='myNextChart'></div>
+       <div id='myNextChartt'></div>
+
+      <script>
+        var Benchmark;
+        var i = 0  ;
+
+        function Calc() {
+          var arrayrequestSart = [];
+          var arrayrequestEnd = [];      
+
+          setTimeout(function () {           
+            Benchmark = JSON.parse(localStorage.getItem("array2"));
+            for (i in Benchmark)
+            { 
+              arrayrequestSart.push(Benchmark[i].RequestStart)
+              arrayrequestEnd.push(Benchmark[i].RequestEnd)
+            }
+
+            minTime =Math.min.apply(null ,arrayrequestSart)
+            maxTime =Math.max.apply(null ,arrayrequestSart)
+            maxTimeEndReq =Math.max.apply(null ,arrayrequestEnd)
+            console.log(minTime);
+            console.log(maxTime);
+
+            function getAvg(array) {
+            const total = array.reduce((acc, c) => acc + c, 0);
+            return total / array.length;
+            }    
+
+            t = minTime
+            var stepp =  document.getElementById('s').value
+            step =parseInt(stepp)
+            var s = document.getElementById('s').value
+            s1 =parseInt(s)
+            
+            //ChunksrequestDatabaseTime = [];
+            ChunksresponseStatus = [];
+            Chunksthroughput =[]
+            ChunksHitsPRS =[]
+           
+
+            while( t < maxTime ){
+              chank=[]
+              filterchunk = []
+              filterchunk2=[]
+              arrayError =[]
+              arrayThroughput =[]
+              arrayHitsPRS =[]
+              chank=Benchmark.filter(function (obj) { return obj.RequestStart <=t+step && obj.RequestStart>= t });
+              console.log(chank)    
+              
+              for (i in chank)
+              {
+                arrayHitsPRS.push(chank[i].responseStatus)
+
+              }
+              var Chunk_HitsPRS = arrayHitsPRS.length
+              console.log(Chunk_HitsPRS)
+              ChunksHitsPRS.push(Chunk_HitsPRS)
+         
+
+
+              filterchunk = chank.filter(function (obj) { return obj.responseStatus != "200_OK"})
+              console.log(filterchunk)
+              for (i in filterchunk)
+              {
+                arrayError.push(filterchunk[i].responseStatus)
+              }
+               var Chunk_responseStatus = arrayError.length
+
+                 
+              console.log(Chunk_responseStatus)
+              ChunksresponseStatus.push(Chunk_responseStatus)
+
+
+              filterchunk2 = chank.filter(function (obj) { return obj.responseStatus == "200_OK"})
+              console.log(filterchunk2)
+              
+              for (i in filterchunk2)
+              {
+                arrayThroughput.push(filterchunk2[i].responseStatus)
+              }
+               var Chunkthroughput = arrayThroughput.length
+              console.log(Chunkthroughput)
+              Chunksthroughput.push(Chunkthroughput)
+              t=t+step
+              }
+
+              console.log(ChunksresponseStatus);
+              console.log(Chunksthroughput)
+              console.log(ChunksHitsPRS)
+
+            DrawChart();
+
+            localStorage.clear()
+
+          }, 3000);
+        }
+
+        function DrawChart() {
+          ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "b55b025e438fa8a98e32482b5f768ff5"];
+            var myConfig = {
+         type: 'line',
+      backgroundColor: 'white',
+      title: {
+        text: 'throughput-hits per second ',
+        adjustLayout: true,
+        marginTop: '7px',
+        fontColor: 'red'
+      },
+     legend: {
+          cursor: 'hand',
+          draggable: true,
+          dragHandler: 'icon',
+          toggleAction: 'remove',
+          minimize: true,
+          header: {
+          height: '20px',
+          text: 'Daily Activities'
+          }
+          },
+      plot: {
+        aspect: 'spline',
+        lineWidth: '2px',
+        marker: {
+          borderWidth: '0px',
+          size: '5px'
+        }
+      },
+      plotarea: {
+        margin: 'dynamic 70'
+      },
+      scaleX: {
+        item: {
+          fontColor: 'gray'
+        },
+        lineColor: 'gray',
+        zooming: true,
+           minValue:minTime,
+            maxValue:maxTime,
+          step:s1,
+
+          transform: {
+          type: 'date',
+          }
+          },
+      scaleY: {
+        guide: {
+          lineStyle: 'dashed'
+        },
+        item: {
+          fontColor: 'Black'
+        },
+        lineColor: 'Black',
+        minorGuide: {
+          alpha: 0.7,
+          lineColor: 'Black',
+          lineStyle: 'dashed',
+          lineWidth: '1px',
+          visible: true
+        },
+        minorTick: {
+          lineColor: 'Black'
+        },
+        minorTicks: 1,
+        tick: {
+          lineColor: 'Black'
+        }
+      },
+      crosshairX: {
+        marker: {
+          alpha: 0.5,
+          size: '7px'
+        },
+        plotLabel: {
+          borderRadius: '3px',
+          multiple: true
+        },
+        scaleLabel: {
+          backgroundColor: 'Black',
+          borderRadius: '3px'
+        }
+      },
+      crosshairY: {
+        type: 'multiple',
+        lineColor: 'Black',
+        scaleLabel: {
+          bold: true,
+          borderRadius: '3px',
+          decimals: 2,
+          fontColor: '#2C2C39',
+          offsetX: '-5px'
+        }
+      },
+      shapes: [{
+        type: 'rectangle',
+        id: 'view_all',
+        backgroundColor: '#53535e',
+        borderColor: '#E3E3E5',
+        borderRadius: '3px',
+        borderWidth: '1px',
+        cursor: 'hand',
+        label: {
+          text: 'View All',
+          bold: true,
+          fontColor: '#E3E3E5',
+          fontSize: '12px'
+        },
+        width: '75px',
+        height: '20px',
+        x: '85%',
+        y: '11%'
+      }],
+      tooltip: {
+        borderRadius: '3px',
+        borderWidth: '0px'
+      },
+      preview: {
+        adjustLayout: true,
+        borderColor: '#E3E3E5',
+        label: {
+          fontColor: '#E3E3E5'
+        },
+        mask: {
+          backgroundColor: '#E3E3E5'
+        }
+      },
+    series: [
+          {
+          values: ChunksHitsPRS,// avg cpu
+          text: 'hits per second',
+          backgroundColor:'YellowGreen'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },{
+          values: ChunksresponseStatus ,// avg cpu
+          text: 'error rate',
+          backgroundColor:'LightSkyBlue'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "#007790",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "#007790",
+          }
+          },{
+          values: Chunksthroughput,// avg cpu
+          text: 'throughput',
+          backgroundColor:'Yellow'
+          ,
+          linecolor: "#007790",
+          legenditem: {
+          backgroundcolor: "#cc0000",
+          borderRadius: 5,
+          fontcolor: "white"
+          },
+          legendmarker: {
+          visible: true
+          },
+          marker: {
+          backgroundcolor: "red",
+          borderwidth: 10,
+          shadow: 0,
+          bordercolor: "#69dbf1"
+          },
+          highlightmarker: {
+          size: 100,
+          backgroundcolor: "Black",
+          }
+          },
+
+          ],
+
+
+          }; 
+          var clicks = 0;
+          zingchart.node_click =function(e) {
+          var shapeId = e.id;
+          console.log(shapeId);
+          clicks++;
+          console.log(clicks);
+                    if ( e.id === 'myChart') {
+          nodeindex=e.scaleval;
+          console.log(nodeindex);
+          var array2 ;
+          var time ;
+          console.log(nodeindex);
+
+          t = nodeindex
+          step1=s1
+          arrayError1 =[]
+          arrayThroughput1 =[]
+          arrayoftdl =[]
+          arrayoftdl1=[]  
+          chunk1=[]
+          arrayResponseStatus2 =[] 
+           arrayResponseStatus=[]
+          chunk1 =Benchmark.filter(function (obj) { return obj.RequestStart <=t+step1 && obj.RequestStart>= t });
+          for (i in chunk1)
+          {
+            arrayoftdl.push(chunk1[i].tdlId)
+            arrayResponseStatus.push(chunk1[i].responseStatus)
+          }
+          for ( i in arrayResponseStatus)
+          {
+            if (arrayResponseStatus[i] =="200_OK")
+            {
+              arrayResponseStatus2.push(1)
+            }
+            else 
+            {
+              arrayResponseStatus2.push(0)
+            }
+          }
+          console.log(arrayResponseStatus2)
+          // filterchunk1 = chunk1.filter(function (obj) { return obj.responseStatus != "200_OK"})
+          //     console.log(filterchunk1)
+          //     for (i in filterchunk1)
+          //     {
+          //       arrayError1.push(filterchunk1[i].responseStatus)
+          //     }
+
+          //     filterchunk22 = chunk1.filter(function (obj) { return obj.responseStatus == "200_OK"})
+          //     console.log(filterchunk22)
+              
+          //     for (i in filterchunk22)
+          //     {
+          //       arrayThroughput1.push(filterchunk22[i].responseStatus)
+          //     }
+
+              for (i in arrayoftdl) {
+                if (arrayoftdl[i] != null){
+               let tdlid= arrayoftdl[i].split('$$')
+                var j = tdlid.length
+                arrayoftdl1.push(tdlid[j -1]);
+              }}
+
+              var myDrilldownConfig=[]
+              myDrilldownConfig[11] = {
+            
+            type: 'bar',
+          globals: {
+          fontSize: '14px'
+          },
+          title: {
+          text: 'report ',
+          paddingLeft: '50px',
+          fontSize: '24px',
+          textAlign: 'left',
+          // will force margin and padding on title
+          // adjustLayout: true
+          },
+          legend: {
+          cursor: 'hand',
+          draggable: true,
+          dragHandler: 'icon',
+          toggleAction: 'remove',
+          minimize: true,
+          header: {
+          height: '20px',
+          text: 'Daily Activities'
+          }
+          },
+          plotarea: {
+          margin: '50px dynamic dynamic dynamic'
+          },
+          plot: {
+          stacked: true,
+          // hoverstate
+          tooltip: {
+          visible: false
+          },
+          animation: {
+          effect: 'ANIMATION_SLIDE_TOP',
+          method: 'ANIMATION_BOUNCE_EASE_OUT',
+          sequence: 'ANIMATION_NO_SEQUENCE',
+          speed: 975
+          },
+          lineWidth: '3px',
+          marker: {
+          borderWidth: '0px',
+          size: '6px'
+          }
+          },
+          scaleX: {
+          values: arrayoftdl1,        
+            label: {
+          text: 'tdid'
+          },
+         
+          },
+          scaleY: {
+            values: '0:1:1',
+          label: {
+          text: 'data visulization '
+          },
+          },
+          crosshairX: {
+          plotLabel: {
+          padding: '10px 15px',
+          borderRadius: '3px',
+          sortByValue: 'asc'
+          },
+          lineWidth: '100%',
+          alpha: .28,
+          },
+          series: [
+          {
+          text: 'request sucessfully ',
+          // plot values
+          values: arrayResponseStatus2,
+          backgroundColor: 'OliveDrab',
+          },
+          ],
+          
+          };
+          zingchart.render({
+          id: 'myNextChart',
+          data: myDrilldownConfig[11], //to reference the drilldown charts
+                   // data: myDrilldownConfig[e.plotindex], //to reference the drilldown charts
+
+          height: 400,
+          width: '100%'
+
+          });
+        }
+
+         
+          }
+
+
+
+          zingchart.shape_click = function(e) {
+          var shapeId = e.shapeid;
+          console.log(e);
+
+          switch (shapeId) {
+          case 'forwards':
+          case 'backwards':
+          case 'default':
+          zingchart.exec('myNextChart', 'destroy');
+          zingchart.render({
+          id: 'myChart',
+          data: myConfig,
+          height: 400,
+          width: '100%'
+          });
+          break;
+          }
+          }
+
+
+          zingchart.render({
+          id: 'myChart',
+          data: myConfig,
+          height: 400,
+          width: '100%'
+          });
+}
+      </script>
+    </div>
+    <br/>
+  </div>
+  <p class="subnote">Report generated by Web Performance Load Tester</p>
+</body>
+</html>

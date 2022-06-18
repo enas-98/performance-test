@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+  <title>Load Test Report</title>
+
+  <script src="zingchart.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+
+  <link rel="StyleSheet" href="report.css" media="screen">
+  <link rel="StyleSheet" href="print.css" media="print">
+
+</head>
+
+<body>
+  <div id="page">
+
+    <table width="100%" class="h1text">
+      <tr>
+        <td>Load Test Report</td>
+        <td align="right" rowspan="2"><img src="logo.png"></td>
+      </tr>
+      <tr>
+        <td>test id: <input type="input" name="x1" id="x1" placeholder="Enter-test-id">
+          <button id="btn" onclick="Calc()">START</button>
+          <script src='mainConnection.js'>
+          </script>
+        </td>
+      </tr>
+    </table>
+
+    <h3>Summary:</h3>
+    <br />
+    <!-- "table" is a TabularDataListProvider -->
+    <h3>About Processor:</h3>
+    <table cellpadding="0" cellspacing="0" border="0" class="dtbl" id="Processor">
+      <thead>
+        <tr>
+          <td class="datar" title="Averge value about Response Time">Averge ResponseTime</td>
+          <td class="datar" title="Averge value about Request Exeution time In MS">Averge Request Exeution</td>
+          <td class="datar" title="Averge value about Real Execute time">Averge Real Execute</td>
+          <td class="datar" title="Minimum value Process Cpu Time">Min Process CPU</td>
+          <td class="datar" title="Maximum value Process Cpu Time">Max Process CPU</td>
+          <td class="datar" title="Averge value about Current Thread Cpu Time In MS">Averge Current Thread CPU</td>
+          <td class="datar" title="Minimum value about Current Thread Cpu Time In MS">Min Current Thread CPU</td>
+          <td class="datar" title="Maximum value about Current Thread Cpu Time In MS">Max Current Thread CPU</td>
+
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <br />
+    <br />
+    <h3>About Memory:</h3>
+    <table cellpadding="0" cellspacing="0" border="0" class="dtbl" id="Memory">
+      <thead>
+        <tr>
+          <td class="datar" title="Minimum value about Total Physical Memory">Min Total Physical Memory</td>
+          <td class="datar" title="Maximum value about Total Physical Memory">Max Total Physical Memory</td>
+          <td class="datar" title="Minimum value about Free Physical Memory">Min Free Physical Memory</td>
+          <td class="datar" title="Maximum value about Free Physical Memory">Max Free Physical Memory</td>
+          <td class="datar" title="Minimum value about Committed Virtual Memory Size">Min Committed Virtual Memory</td>
+          <td class="datar" title="Maximum value about Committed Virtual Memory Size">Max Committed Virtual Memory</td>
+          <td class="datar" title="Minimum value about Garbage Collection Time">Min Garbage Collection</td>
+          <td class="datar" title="Maximum value about Garbage Collection Time">Max Garbage Collection</td>
+
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+          <td class="datar"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="container" class="container">
+        <div id='myChart'></div>
+
+      <script>
+
+       var arrayofValueBenchmark = [] 
+          requestDatabaseTime = []
+          arrayFree_Physical_Memory = []
+          arrayCommitted_Virtual_Memory_Size = []
+          arrayTotal_Swap_Space = []
+          arrayFree_Swap_Space = []
+          arrayProcess_Cpu_Time = []
+          arrayNumber_Of_Active_Thread = []
+          arrayGarbage_Collection_Time = []
+          arrayTotal_Size_Hard_Disk = []
+          arrayrequestSart=[]
+          arrayrequestEnd =[]
+          arrayCurrentThreadCpuTimeInMS=[]
+          arrayTotal_Physical_Memory=[]
+          arrayRequestExecutionTimeInMS=[]
+          arrayREAL_EXECUTE_TIME=[]
+          arrayHitsPRS =[]
+          arrayError =[]
+          arrayThroughput=[]
+          hits=[]
+           throughput=[]
+             error=[]
+          var i = 0  ;
+          var Benchmark;
+        function Calc() {
+         
+          setTimeout(function () {           
+            Benchmark = JSON.parse(localStorage.getItem("array2"));
+            
+            for (i in Benchmark)
+            {             
+              arrayTotal_Physical_Memory.push(Benchmark[i].Total_Physical_Memory)
+              arrayFree_Physical_Memory.push(Benchmark[i].Free_Physical_Memory)
+              arrayCommitted_Virtual_Memory_Size.push(Benchmark[i].Committed_Virtual_Memory_Size)
+              arrayTotal_Swap_Space.push(Benchmark[i].Total_Swap_Space)
+              arrayFree_Swap_Space.push(Benchmark[i].Free_Swap_Space)
+              arrayProcess_Cpu_Time.push(Benchmark[i].Process_Cpu_Time)
+              arrayNumber_Of_Active_Thread.push(Benchmark[i].Number_Of_Active_Thread)
+              arrayGarbage_Collection_Time.push(Benchmark[i].Garbage_Collection_Time)
+              arrayTotal_Size_Hard_Disk.push(Benchmark[i].Total_Size_Hard_Disk) 
+              arrayREAL_EXECUTE_TIME.push(Benchmark[i].REAL_EXECUTE_TIME)
+              arrayCurrentThreadCpuTimeInMS.push(Benchmark[i].CurrentThreadCpuTimeInMS)
+              arrayrequestSart.push(Benchmark[i].RequestStart)
+              arrayrequestEnd.push(Benchmark[i].RequestEnd)
+              arrayRequestExecutionTimeInMS.push(Benchmark[i].RequestExecutionTimeInMS)
+              arrayHitsPRS.push(Benchmark[i].responseStatus)
+            }
+
+
+            filterchunk = Benchmark.filter(function (obj) { return obj.responseStatus != "200_OK"})
+              for (i in filterchunk)
+              {
+                arrayError.push(filterchunk[i].responseStatus)
+              }
+
+            filterchunk2 = Benchmark.filter(function (obj) { return obj.responseStatus == "200_OK"})            
+            for (i in filterchunk2)
+            {
+              arrayThroughput.push(filterchunk2[i].responseStatus)
+            }
+            
+            
+               hits.push(arrayHitsPRS.length)
+              throughput.push(arrayThroughput.length)
+              error.push(arrayError.length)
+              console.log(error);
+              console.log(throughput);
+           let responseTime = arrayrequestEnd.map(function(v,i) { return (v - arrayrequestSart[i]); }); 
+            console.log(responseTime)
+
+            let resultOfarrayREAL_EXECUTE_TIME = arrayREAL_EXECUTE_TIME.map(i=>Number(i));
+            console.log(resultOfarrayREAL_EXECUTE_TIME)
+
+            minTime =Math.min.apply(null ,arrayrequestSart)
+            maxTime =Math.max.apply(null ,arrayrequestEnd)
+            console.log(minTime);
+            console.log(maxTime);
+
+            minCPU =Math.min.apply(null ,arrayCurrentThreadCpuTimeInMS)
+            maxCPU =Math.max.apply(null ,arrayCurrentThreadCpuTimeInMS)
+
+            minPCPU =Math.min.apply(null ,arrayProcess_Cpu_Time)
+            maxPCPU =Math.max.apply(null ,arrayProcess_Cpu_Time)
+
+            minTMEMORY =Math.min.apply(null ,arrayTotal_Physical_Memory)
+            maxTMemory =Math.max.apply(null ,arrayTotal_Physical_Memory)
+
+            minFMEMORY =Math.min.apply(null ,arrayFree_Physical_Memory)
+            maxFMemory =Math.max.apply(null ,arrayFree_Physical_Memory)
+
+            minCMEMORY =Math.min.apply(null ,arrayCommitted_Virtual_Memory_Size)
+            maxCMemory =Math.max.apply(null ,arrayCommitted_Virtual_Memory_Size)
+
+            minGC =Math.min.apply(null ,arrayGarbage_Collection_Time)
+            maxGC =Math.max.apply(null ,arrayGarbage_Collection_Time)
+
+            function getAvg(array) {
+            const total = array.reduce((acc, c) => acc + c, 0);
+            return total / array.length;
+            }    
+
+            avgCPU = getAvg(arrayCurrentThreadCpuTimeInMS)
+            avgMEMORY = getAvg(arrayTotal_Physical_Memory)
+            avgREALET = getAvg(resultOfarrayREAL_EXECUTE_TIME)
+            avgRET = getAvg(arrayRequestExecutionTimeInMS)
+            avgRT = getAvg(responseTime)
+  
+            DrawTable();
+            DrawChart();
+
+            localStorage.clear()
+          }, 3000);
+        }
+
+        function DrawTable() {        
+          var art = document.getElementById("Processor").rows[1].cells[0].innerHTML = avgRT;
+          var a = document.getElementById("Processor").rows[1].cells[1].innerHTML = avgRET;
+          var aREALET = document.getElementById("Processor").rows[1].cells[2].innerHTML = avgREALET;
+          var mP = document.getElementById("Processor").rows[1].cells[3].innerHTML = minPCPU;
+          var maP = document.getElementById("Processor").rows[1].cells[4].innerHTML = maxPCPU;
+          var av = document.getElementById("Processor").rows[1].cells[5].innerHTML = avgCPU;
+          var mc = document.getElementById("Processor").rows[1].cells[6].innerHTML = minCPU;
+          var mac = document.getElementById("Processor").rows[1].cells[7].innerHTML = maxCPU;  
+          
+          var art = document.getElementById("Memory").rows[1].cells[0].innerHTML = minTMEMORY;
+          var a = document.getElementById("Memory").rows[1].cells[1].innerHTML = maxTMemory;
+          var aREALET = document.getElementById("Memory").rows[1].cells[2].innerHTML = minFMEMORY;
+          var mP = document.getElementById("Memory").rows[1].cells[3].innerHTML = maxFMemory;
+          var maP = document.getElementById("Memory").rows[1].cells[4].innerHTML = minCMEMORY;
+          var av = document.getElementById("Memory").rows[1].cells[5].innerHTML = maxCMemory;
+          var mc = document.getElementById("Memory").rows[1].cells[6].innerHTML = minGC;
+          var mac = document.getElementById("Memory").rows[1].cells[7].innerHTML = maxGC;  
+          
+        }
+
+        function DrawChart()
+        {
+ ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "b55b025e438fa8a98e32482b5f768ff5"];
+    let chartConfig = {
+      type: "pie3d",
+      scaler: {
+        aperture: 300
+      },
+      legend: {
+          cursor: 'hand',
+          draggable: true,
+          dragHandler: 'icon',
+          toggleAction: 'remove',
+          minimize: true,
+          header: {
+          height: '20px',
+          text: 'turn-on-off'
+          }
+          },
+      title: {
+        text: "successful and unsuccessful  request"
+      },
+      series: [{
+        backgroundColor:'Red',
+        text:"error",
+          values: error
+        },
+        {
+                  backgroundColor:'green',
+text:'throughput',
+          values: throughput
+        },
+       
+      ]
+    };
+      
+
+    zingchart.render({
+      id: 'myChart',
+      data: chartConfig,
+      height: '100%',
+      width: '100%',
+    });
+        
+}
+        
+      </script>
+    </div>
+    <br/>
+  </div>
+  <p class="subnote">Report generated by Web Performance Load Tester</p>
+</body>
+</html>
